@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Voucher;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        DB::listen(function ($query){
+            Log::info("Query : {$query->sql}");
+        });
     }
 }
