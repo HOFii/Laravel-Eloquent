@@ -1,66 +1,513 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LARAVEL LOGGING
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## POINT UTAMA
 
-## About Laravel
+### 1. Instalasi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   Minimal PHP versi 8 atau lebih,
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   Composer versi 2 atau lebih,
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   Lalu pada cmd ketikan `composer create-project laravel/laravel=v10.2.4 belajar-laravel-eloquent`.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Query builder
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   Query Builder di Laravel adalah salah satu fitur yang sangat berguna untuk membangun dan menjalankan query database secara lebih efisien dan aman. Query Builder memungkinkan Anda untuk membangun query SQL dengan menggunakan sintaks PHP, sehingga lebih mudah dibaca dan ditulis.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   Dokumentasi Query Bulder: https://laravel.com/docs/11.x/queries#main-content
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 3. Model
 
-### Premium Partners
+-   Kita bisa membuat Model menggunakan php artisan, gunakan perintah `php artisan make:model NamaModel` pada terminal.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+-   Atau bisa juga dengan pendukungnya, misalnya `php artisan make:model NamaModel --migration --seed`.
 
-## Contributing
+-   Saat membuat Model biasanya menambahkan pendukung seperti database Migration atau database Seeder.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   Buat Model dengan nama `php artisan make:model Category --migration --seed`
 
-## Code of Conduct
+-   Kode Model Category
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    ```PHP
+    class Category extends Model
+    {
+        protected $table = "categories";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = false;
+    }
+    ```
 
-## Security Vulnerabilities
+-   Kode Model Category Migration
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->string("id", 100)->nullable(false)->primary();
+            $table->string("name", 100)->nullable(false);
+            $table->text("description")->nullable();
+            $table->timestamp("created_at")->nullable(false)->useCurrent();
+        });
+    }
 
-## License
+    public function down(): void
+    {
+        Schema::dropIfExists('categories');
+    }
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    ```
+
+-   Gunakan perintah `php artisan migrate` untuk menjalankan database Migration.
+    ```
+
+    ```
+
+---
+
+### 4. Insert
+
+-   Gunaka method `save()` setelah membuat object dari kelas Model,
+
+-   Kode insert
+
+    ```PHP
+    public function testInsert()
+    {
+        $category = new Category();
+        $category->id = "GADGET";
+        $category->name = "Gadget";
+        $result = $category->save();
+
+        self::assertTrue($result);
+    }
+    ```
+
+-   Setelah membuat Model, untuk melakukan operasi CRUD terhadap Model, kita bisa menggunakan Query Builder.
+
+-   Kode Insert Mary
+
+    ```PHP
+    public function testInsertMany()
+    {
+        $categories = [];
+        for ($i = 0; $i < 10; $i++) {
+            $categories[] = [
+                "id" => "ID $i",
+                "name" => "Name $i",
+                'is_active' => true
+            ];
+        }
+
+        // $result = Category::query()->insert($categories);
+        $result = Category::insert($categories);
+
+        self::assertTrue($result);
+
+        // $total = Category::query()->count();
+        $total = Category::count();
+
+        self::assertEquals(10, $total);
+    }
+    ```
+
+---
+
+### 5. Find
+
+-   Method dengan _prefix_ `find()` di Query Builder mempermudah untuk mendapatkan data menggunakan Primary Key.
+
+-   Kode Caategory Seeder
+
+    ```PHP
+    public function run(): void
+    {
+        $category = new Category();
+        $category->id = "FOOD";
+        $category->name = "Food";
+        $category->description = "Food Category";
+        $category->is_active = true;
+        $category->save();
+    }
+    ```
+
+-   Kode Find
+
+    ```PHP
+       public function testFind()
+    {
+        $this->seed(CategorySeeder::class);
+
+        // $category = Category::query()->find("FOOD");
+        $category = Category::find("FOOD");
+
+        self::assertNotNull($category);
+        self::assertEquals("FOOD", $category->id);
+        self::assertEquals("Food", $category->name);
+        self::assertEquals("Food Category", $category->description);
+    }
+    ```
+
+---
+
+### 6. Update
+
+-   Gunakan method `update()` atau `save()` untuk melakukan update terhadap Model,
+
+-   Kode Update
+
+    ```PHP
+     public function testUpdate()
+    {
+        $this->seed(CategorySeeder::class);
+
+        $category = Category::find("FOOD");
+        $category->name = "Food Updated";
+
+        $result = $category->update();
+        self::assertTrue($result);
+    }
+    ```
+
+-   Jika ingin melakukan update yang berdampak ke libih satu data, bisa menggunakan Query Builder.
+
+-   Kode Update Many
+
+    ```PHP
+    public function testUpdateMany()
+    {
+        $categories = [];
+        for ($i = 0; $i < 10; $i++) {
+            $categories[] = [
+                "id" => "ID $i",
+                "name" => "Name $i",
+                'is_active' => true
+            ];
+        }
+
+        $result = Category::insert($categories);
+        self::assertTrue($result);
+
+        Category::whereNull("description")->update([
+            "description" => "Updated"
+        ]);
+        $total = Category::where("description", "=", "Updated")->count();
+        self::assertEquals(10, $total);
+
+    }
+    ```
+
+---
+
+### 7. Select
+
+-   Gunakan Query Builder saat melakukan Select data yang datanya lebih dari satu.
+
+-   Kode Select
+
+    ```PHP
+     public function testSelect()
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $category = new Category();
+            $category->id = "ID $i";
+            $category->name = "Name $i";
+            $category->is_active = true;
+            $category->save();
+        }
+
+        $categories = Category::whereNull("description")->get();
+        self::assertEquals(5, $categories->count());
+        $categories->each(function ($category) {
+            self::assertNull($category->description);
+
+             $category->description = "Updated";
+            $category->update(); // select result
+        });
+    }
+    ```
+
+---
+
+### 8. Delete
+
+-   Gunakan method `delete()` untuk melakukan delete data, saat melakukan delete dengan Model dengan kata kunci `new` kita harus mengubah _attribute_ `$exits` dari _false_ ke _true_.
+
+-   Kode Delete
+
+    ```PHP
+    public function testDelete()
+    {
+        $this->seed(CategorySeeder::class);
+
+        $category = Category::find("FOOD");
+        $result = $category->delete();
+        self::assertTrue($result);
+
+        $total = Category::count();
+        self::assertEquals(0, $total);
+    }
+    ```
+
+-   Sama seperti update saat ingin melakukan delete yang berdampak ke banyak data harus menggunakan Query Builder.
+
+-   Kode Delete Many
+
+    ```PHP
+    public function testDeleteMany()
+    {
+        $categories = [];
+        for ($i = 0; $i < 10; $i++) {
+            $categories[] = [
+                "id" => "ID $i",
+                "name" => "Name $i",
+                'is_active' => true
+            ];
+        }
+
+        $result = Category::insert($categories);
+        self::assertTrue($result);
+
+        $total = Category::count();
+        assertEquals(10, $total);
+
+        Category::whereNull("description")->delete();
+
+        $total = Category::count();
+        assertEquals(0, $total);
+    }
+    ```
+
+---
+
+### 9. UUID
+
+-   UUID (Universally Unique Identifier) di Laravel biasanya digunakan untuk mengidentifikasi entitas secara unik. UUID berguna karena mereka sangat tidak mungkin untuk menghasilkan duplikat, bahkan di antara database yang berbeda.
+
+-   Dokumentasi UUID: https://laravel.com/docs/11.x/eloquent#uuid-and-ulid-keys
+
+-   Buat Model baru `php artisan make:model Voucher --migration --seed`
+
+-   Kode Voucher Migration
+
+    ```PHP
+     public function up(): void
+    {
+        Schema::create('vouchers', function (Blueprint $table) {
+            $table->uuid("id")->nullable(false)->primary();
+            $table->string("name", 100)->nullable(false);
+            $table->string("voucher_code", 200)->nullable(false);
+            $table->timestamp("created_at")->nullable(false)->useCurrent();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('vouchers');
+    }
+    ```
+
+-   Kode Voucher Model
+
+    ```PHP
+        class Voucher extends Model
+    {
+        use HasUuids, SoftDeletes;
+
+        protected $table = "vouchers";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = false;
+    }
+    ```
+
+-   Kode Unit Voucher Model
+
+    ```PHP
+    public function testCreateVoucher()
+    {
+        $voucher = new Voucher();
+        $voucher->name = "Sample Voucher";
+        $voucher->voucher_code = "23414124214";
+        $voucher->save();
+
+        self::assertNotNull($voucher->id);
+    }
+    ```
+
+-   UUID bisa juga diganti dengan non Primary key
+
+-   Kode Voucher Non Primary Key
+
+    ```PHP
+    class Voucher extends Model
+    {
+        use HasUuids, SoftDeletes;
+
+        protected $table = "vouchers";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = false;
+
+        public function uniqueIds(): array
+        {
+            return [$this->primaryKey, "voucher_code"];
+        }
+    }
+    ```
+
+-   Kode test Voucher Non Primary Key
+
+    ```PHP
+    public function testCreateVoucherUUID()
+    {
+        $voucher = new Voucher();
+        $voucher->name = "Sample Voucher";
+        $voucher->save();
+
+        self::assertNotNull($voucher->id);
+        self::assertNotNull($voucher->voucher_code);
+    }
+    ```
+
+---
+
+### 10. Factory
+
+-   Saat kita membuat object Model, biasanya kita harus ubah tiap atribut satu satu secara manual,
+
+-   Laravel Eloquent memiliki fitur bernama Factory, ini sebenarnya adalah implementasi dari Design,
+
+-   Patterns bernama Factory Patterns, dimana, kita membuat class Factory yang digunakan untuk membuat object
+    Dengan begitu, jika kita membuat object yang hampir sama, kita bisa menggunakan Factory.
+
+-   Dokumentasi: https://refactoring.guru/
+
+#### Contoh Kasus
+
+-   Misal kita akan membuat model Employee, dimana Employee memiliki title dan salary yang selalu sama untuk title yang sama,
+
+-   Untuk mempermudah, kita bisa menggunakan Factory ketika membuat object Employee
+
+-   Kode Employee Migration
+
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('employees', function (Blueprint $table) {
+            $table->string("id", 100)->nullable(false)->primary();
+            $table->string("name", 100)->nullable(false);
+            $table->string("title", 100)->nullable(false);
+            $table->bigInteger("salary")->nullable(false);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('employees');
+    }
+    ```
+
+-   Kode Employee Model
+
+    ```PHP
+    class Employee extends Model
+    {
+        use HasFactory;
+
+        protected $table = "employees";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = true;
+    }
+    ```
+
+-   Nama Factory secara default adalah nama Model + Factory,
+
+-   Jika tidak menggunakan format yang sesuai, secara default Factory tidak bisa ditemukan,
+
+-   Selain itu, di Model harus menggunakan trait HasFactory, untuk memberitahu bahwa Model ini memiliki Factory,
+
+-   Untuk membuat class Factory, kita tidak perlu melakukannya secara manual, cukup gunakan perintah `php artisan make:factory NamaFactory`.
+
+-   Kode Employee Factory
+
+    ```PHP
+    public function definition(): array
+    {
+        return [
+            'id' => '',
+            'name' => '',
+            'title' => '',
+            'salary' => 0
+        ];
+    }
+    ```
+
+-   Secara default, saat membuat Factory, kita wajib meng-override method `definition()`, yang digunakan sebagai _state_ awal data ketika dibuat menggunakan Factory,
+
+-   Selanjutnya, kita bisa membuat _state_ lainnya, dimana _state_ awal akan menggunakan data dari method `definition()`.
+
+-   kode Factory State
+
+    ```PHP
+    public function programmer(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'title' => 'Programmer',
+                'salary' => 5000000
+            ];
+        });
+    }
+
+    public function seniorProgrammer(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'title' => 'Senior Programmer',
+                'salary' => 10000000
+            ];
+        });
+    }
+    ```
+
+-   kode Unit Factory
+
+    ```PHP
+     public function testFactory()
+    {
+        $employee1 = Employee::factory()->programmer()->make();
+        $employee1->id = '1';
+        $employee1->name = 'Employee 1';
+        $employee1->save();
+
+        self::assertNotNull(Employee::where('id', '1')->first());
+
+        $employee2 = Employee::factory()->seniorProgrammer()->create([
+            'id' => '2',
+            'name' => 'Employee 2'
+        ]);
+        self::assertNotNull($employee2);
+        self::assertNotNull(Employee::where('id', '2')->first());
+    }
+    ```
+
+---
+
+## PERTANYAAN & CATATAN TAMBAHAN
+
+-   Tidak ada
+
+### KESIMPULAN
+
+-   Laravel Eloquent adalah alat yang sangat powerful untuk interaksi database dalam aplikasi Laravel. Dengan fitur-fitur seperti CRUD sederhana, relationship handling, dan kemampuan query yang kuat, Eloquent tidak hanya meningkatkan produktivitas developer tetapi juga membuat kode lebih bersih dan mudah dipelihara
