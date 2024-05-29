@@ -506,7 +506,7 @@
 
 ## PERTANYAAN & CATATAN TAMBAHAN
 
--   Tidak ada
+-   Tidak ada.
 
 ### KESIMPULAN
 
