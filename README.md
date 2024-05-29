@@ -12,7 +12,9 @@
 
 ---
 
-### 2. Query builder
+### 2. Pengenalan & Query Builder
+
+- Laravel Eloquent adalah ORM (Object-Relational Mapping) bawaan dari framework Laravel yang memudahkan interaksi dengan database. Eloquent memungkinkan pengembang untuk bekerja dengan database menggunakan model PHP, sehingga tidak perlu menulis query SQL secara langsung.
 
 -   Query Builder di Laravel adalah salah satu fitur yang sangat berguna untuk membangun dan menjalankan query database secara lebih efisien dan aman. Query Builder memungkinkan Anda untuk membangun query SQL dengan menggunakan sintaks PHP, sehingga lebih mudah dibaca dan ditulis.
 
