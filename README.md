@@ -18,7 +18,7 @@
 
 -   Query Builder di Laravel adalah salah satu fitur yang sangat berguna untuk membangun dan menjalankan query database secara lebih efisien dan aman. Query Builder memungkinkan Anda untuk membangun query SQL dengan menggunakan sintaks PHP, sehingga lebih mudah dibaca dan ditulis.
 
--   Dokumentasi Query Bulder: https://laravel.com/docs/11.x/queries#main-content
+-   Dokumentasi [Query Builder](https://laravel.com/docs/11.x/queries#main-content)
 
 ---
 
@@ -291,7 +291,7 @@
 
 -   UUID (Universally Unique Identifier) di Laravel biasanya digunakan untuk mengidentifikasi entitas secara unik. UUID berguna karena mereka sangat tidak mungkin untuk menghasilkan duplikat, bahkan di antara database yang berbeda.
 
--   Dokumentasi UUID: https://laravel.com/docs/11.x/eloquent#uuid-and-ulid-keys
+-   Dokumentasi [UUID](https://laravel.com/docs/11.x/eloquent#uuid-and-ulid-keys)
 
 -   Buat Model baru `php artisan make:model Voucher --migration --seed`
 
@@ -390,7 +390,7 @@
 -   Patterns bernama Factory Patterns, dimana, kita membuat class Factory yang digunakan untuk membuat object
     Dengan begitu, jika kita membuat object yang hampir sama, kita bisa menggunakan Factory.
 
--   Dokumentasi: https://refactoring.guru/
+-   [Dokumentasi](https://refactoring.guru/)
 
 #### Contoh Kasus
 
