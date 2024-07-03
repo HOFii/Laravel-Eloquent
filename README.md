@@ -381,7 +381,313 @@
 
 ---
 
-### 10. Factory
+### 10. Timestamps
+
+-   `$timestamps` yang jika menggunakan value _true_, maka secara otomatis `Eloquent` akan menambahkan _attribute_ `create_at` dan `update_at` pada Model.
+
+-   yang artinya kita harus membuat kolom tersebut, dan di _Migrations_ itu bisa dilakukan secara otomatis.
+
+-   Buat file baru `php artisan make:model Comment --migration --seed`.
+
+-   Kode Comment Migration
+
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('comments', function (Blueprint $table) {
+            // $table->bigInteger("id")->autoIncrement();
+            // $table->id();
+            $table->integer("id")->autoIncrement();
+            $table->string("email", 100)->nullable(false);
+            $table->string("title", 200)->nullable(false);
+            $table->text("comment")->nullable();
+            $table->timestamps(); // created_at, updated_at
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('comments');
+    }
+    ```
+
+-   Kode Model Comment
+
+    ```PHP
+    class Comment extends Model
+    {
+        protected $table = "comments";
+        protected $primaryKey = "id";
+        protected $keyType = "int";
+        public $incrementing = true;
+        public $timestamps = true;
+
+    }
+    ```
+
+-   Kode Comment Test
+
+    ```PHP
+     public function testCreateComment()
+    {
+        $comment = new Comment();
+        $comment->email = "gusti@hori.com";
+        $comment->title = "Sample Title";
+        $comment->comment = "Sample Comment";
+        $comment->commentable_id = '1';
+        $comment->commentable_type = 'product';
+
+        $comment->save();
+
+        self::assertNotNull($comment->id);
+    }
+    ```
+
+---
+
+### 11. Default Attribut Values
+
+-   Saat membuat tabel, bisa juga membuat default value, namun kadang itu kurang flexible, karena kita tidak bisa mengubah-ubah secara mudah,
+
+-   Laravel Model memiliki fitur default attribute values, dimana kita bisa membuat default value,
+
+-   Untuk menentukan default values, kita bisa menggunakan attribute `$attributes` yang berisi _associative array_ kolom => default value.
+
+-   Kode Model Comment
+
+    ````PHP
+    protected $attributes = [
+        "title" => "Sample Title",
+        "comment" => "Sample Comment"
+    ];
+        ```
+    ````
+
+-   Kode Coment Default Attribute Value
+
+    ```PHP
+     public function testDefaultAttributeValues()
+    {
+        $comment = new Comment();
+        $comment->email = "gusti@hofi.com";
+        $comment->commentable_id = '1';
+        $comment->commentable_type = 'product';
+
+        $comment->save();
+
+        self::assertNotNull($comment->id);
+        self::assertNotNull($comment->title);
+        self::assertNotNull($comment->comment);
+    }
+    ```
+
+---
+
+### 12. Fillable Attributes
+
+-   Saat kita membuat object model yang datanya misalnya dikirim dari web form atau juga mungkin body http request,
+
+-   Akan sangat merepotkan jika harus menambahkan satu persatu _attribute_ nya ke object model,
+
+-   Method `create(attributes) pada` di laravel memudahkan membuat model secara otomatis menggunakan query builder.
+
+-   Kode Membuat Object
+
+    ```PHP
+     public function testCreate()
+    {
+        $request = [
+            "id" => "FOOD",
+            "name" => "Food",
+            "description" => "Food Category"
+        ];
+
+        $category = new Category($request);
+        $category->save();
+
+        self::assertNotNull($category->id);
+    }
+    ```
+
+-   Secara default, semua _attribute_ di Model tidak bisa di set secara masal menggunakan method `create()`,
+
+-   Hal ini untuk menjaga agar tidak ada data salah yang akhirnya tidak sengaja mengubah data di database, misal jika ada Model User, lalu terdapat _attribute_ `is_admin`, jika sampai ada request yang mengirim _attribute_ `is_admin: true`, maka secara otomatis data di database akan diubah,
+
+-   Oleh karena itu, kita harus beri tahu ke Laravel, _attribute_ mana saja yang bisa diubah secara masal Kita bisa gunakan _attribute_ `$fillable` di Model nya.
+
+---
+
+    ```PHP
+    class Category extends Model
+    {
+        protected $table = "categories";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = false;
+
+        protected $fillable = [ // tambahkan variable $fillable pada category model
+            "id",
+            "name",
+            "description"
+        ];
+    }
+    ```
+
+---
+
+### 13. Relationship
+
+-   Relasi antar tabel tersebut bisa kita lakukan secara manual di Laravel, namun artinya kita harus melakukan join tabel secara manual,
+
+-   Di Laravel Eloquent mendukung Model Relationship, sehingga proses join tabel tidak perlu kita lakukan secara manual,
+
+-   Kita akan bahas secara bertahap relasi-relasi antar tabel di Laravel Eloquent di materi-materi berikutnya
+
+---
+
+### 14. One to One
+
+-   Relasi _One to One_ didukung di Laravel Eloquent, dengan method `hasOne()` pada model,
+
+-   Pada model kebalikannya, bisa menggunakan method `belongsTo()` pada model.
+
+-   Contoh kasus, ada dua model, _Customer_ dan _Wallet_ dimana satu _Customer_ memiliki satu _Wallet_.
+
+-   Kode membuat model
+
+-   Customer `php artisan make:model Customer --migration --seed`,
+
+-   Wallet `php artisan make:model Wallet --migration --seed`
+
+-   Kode Customer Migration
+
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('customers', function (Blueprint $table) {
+            $table->string("id", 100)->nullable(false)->primary();
+            $table->string("name", 100)->nullable(false);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('customers');
+    }
+    ```
+
+-   Kode Wallet Migation
+
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('wallets', function (Blueprint $table) {
+            $table->integerIncrements("id");
+            $table->string("customer_id", 100)->nullable(false);
+            $table->bigInteger("amount")->nullable(false)->default(0);
+            $table->foreign("customer_id")->on("customers")->references("id");
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('wallets');
+    }
+    ```
+
+-   Jalankan migration `php artisan migrate`,
+
+-   Kode Customer Model
+
+    ```PHP
+    class Customer extends Model
+    {
+        protected $table = "customers";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = false;
+
+        public function wallet(): HasOne //method hasOne untuk relasi one to one
+        {
+            return $this->hasOne(Wallet::class, "customer_id", "id");
+        }
+    }
+    ```
+
+-   Kode Wallet Model
+
+    ```PHP
+    class Wallet extends Model
+    {
+        protected $table = "wallets";
+        protected $primaryKey = "id";
+        protected $keyType = "int";
+        public $incrementing = true;
+        public $timestamps = false;
+
+        public function customer(): BelongsTo //method belongsTo untuk relasi kebalikannya
+        {
+            return $this->belongsTo(Customer::class, "customer_id", "id");
+        }
+    }
+    ```
+
+-   Kode Seeder Customer & Wallet
+
+    ```PHP
+
+    // customer seeder
+    class CustomerSeeder extends Seeder
+    {
+        /**
+        * Run the database seeds.
+        */
+        public function run(): void
+        {
+            $customer = new Customer();
+            $customer->id = "GUSTI";
+            $customer->name = "Gusti";
+            $customer->email = "gusti@hofi.com";
+            $customer->save();
+        }
+    }
+
+    // wallet seeder
+    class WalletSeeder extends Seeder
+    {
+        public function run(): void
+        {
+            $wallet = new Wallet();
+            $wallet->amount = 1000000;
+            $wallet->customer_id = "GUSTI";
+            $wallet->save();
+        }
+    }
+    ```
+
+-   Kode Test Query One to One
+
+    ```PHP
+    public function testOneToOne()
+    {
+        $this->seed([CustomerSeeder::class, WalletSeeder::class]);
+
+        $customer = Customer::find("GSUTI");
+        self::assertNotNull($customer);
+
+        // $wallet = Wallet::where("customer_id", $customer->id)->first();
+        $wallet = $customer->wallet;
+        self::assertNotNull($wallet);
+
+        self::assertEquals(1000000, $wallet->amount);
+    }
+    ```
+
+---
+
+### 15. Factory
 
 -   Saat kita membuat object Model, biasanya kita harus ubah tiap atribut satu satu secara manual,
 
@@ -390,7 +696,119 @@
 -   Patterns bernama Factory Patterns, dimana, kita membuat class Factory yang digunakan untuk membuat object
     Dengan begitu, jika kita membuat object yang hampir sama, kita bisa menggunakan Factory.
 
--   [Dokumentasi](https://refactoring.guru/)
+-   Dokumentasi: https://refactoring.guru/
+
+#### Contoh Kasus
+
+-   Misal kita akan membuat model Employee, dimana Employee memiliki title dan salary yang selalu sama untuk title yang sama,
+
+-   Untuk mempermudah, kita bisa menggunakan Factory ketika membuat object Employee
+
+-   Kode Employee Migration
+
+    ```PHP
+    public function up(): void
+    {
+        Schema::create('employees', function (Blueprint $table) {
+            $table->string("id", 100)->nullable(false)->primary();
+            $table->string("name", 100)->nullable(false);
+            $table->string("title", 100)->nullable(false);
+            $table->bigInteger("salary")->nullable(false);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('employees');
+    }
+    ```
+
+-   Kode Employee Model
+
+    ```PHP
+    class Employee extends Model
+    {
+        use HasFactory;
+
+        protected $table = "employees";
+        protected $primaryKey = "id";
+        protected $keyType = "string";
+        public $incrementing = false;
+        public $timestamps = true;
+    }
+    ```
+
+-   Nama Factory secara default adalah nama Model + Factory,
+
+-   Jika tidak menggunakan format yang sesuai, secara default Factory tidak bisa ditemukan,
+
+-   Selain itu, di Model harus menggunakan trait HasFactory, untuk memberitahu bahwa Model ini memiliki Factory,
+
+-   Untuk membuat class Factory, kita tidak perlu melakukannya secara manual, cukup gunakan perintah `php artisan make:factory NamaFactory`.
+
+-   Kode Employee Factory
+
+    ```PHP
+    public function definition(): array
+    {
+        return [
+            'id' => '',
+            'name' => '',
+            'title' => '',
+            'salary' => 0
+        ];
+    }
+    ```
+
+-   Secara default, saat membuat Factory, kita wajib meng-override method `definition()`, yang digunakan sebagai _state_ awal data ketika dibuat menggunakan Factory,
+
+-   Selanjutnya, kita bisa membuat _state_ lainnya, dimana _state_ awal akan menggunakan data dari method `definition()`.
+
+-   kode Factory State
+
+    ```PHP
+    public function programmer(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'title' => 'Programmer',
+                'salary' => 5000000
+            ];
+        });
+    }
+
+    public function seniorProgrammer(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'title' => 'Senior Programmer',
+                'salary' => 10000000
+            ];
+        });
+    }
+    ```
+
+-   kode Unit Factory
+
+    ```PHP
+     public function testFactory()
+    {
+        $employee1 = Employee::factory()->programmer()->make();
+        $employee1->id = '1';
+        $employee1->name = 'Employee 1';
+        $employee1->save();
+
+        self::assertNotNull(Employee::where('id', '1')->first());
+
+        $employee2 = Employee::factory()->seniorProgrammer()->create([
+            'id' => '2',
+            'name' => 'Employee 2'
+        ]);
+        self::assertNotNull($employee2);
+        self::assertNotNull(Employee::where('id', '2')->first());
+    }
+    ```
 
 #### Contoh Kasus
 
